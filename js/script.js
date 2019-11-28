@@ -11,9 +11,11 @@ function setPage() {
   $(":checked").each((i, e) => {
     $(e).prop("checked", false);
   });
+  $ (".activities").append('<p class="total">Total: <span>$0</span></p>');
 }
 
 setPage();
+let totalCost = 0;
 
 $("#title").change((e) => {
   if ($(e.target).val() === "other"){
@@ -23,56 +25,55 @@ $("#title").change((e) => {
   }
 });
 
+function showSelectedDesign(regEx){
+  let foundItems =[];
+  $("#color option").each((i, shirt) => {
+    if (regEx.test($(shirt).text())){
+      $(shirt).show();
+      foundItems.push($(shirt));
+    } else { $(shirt).hide().prop("selected", false);
+  }
+  });
+  foundItems[0].prop("selected", true);
+}
 
 $("#design").change((e) => {
   $("#design option").first().hide().prop("selected", false);
-  let foundItems =[];
   if ($(e.target).val() === "js puns"){
-    const punRegEx= /(?:puns)/i;
-    $("#color option").each((i, shirt) => {
-      if (punRegEx.test($(shirt).text())){
-        $(shirt).show();
-        foundItems.push($(shirt));
-      } else { $(shirt).hide().prop("selected", false);
+    showSelectedDesign(/(?:puns)/i);
+  } else {
+    showSelectedDesign(/(?:js shirt)/i);
     }
-    });
-  }
-  if ($(e.target).val() === "heart js"){
-    const heartRegEx= /(?:js shirt)/i;
-    $("#color option").each((i, shirt) => {
-      if (heartRegEx.test($(shirt).text())){
-        $(shirt).show();
-        foundItems.push($(shirt));
-      } else { $(shirt).hide().prop("selected", false);
+  });
+
+function disableActivities (clickTarget, clickedDate, disableBoolean){
+  $(".activities [type=checkbox]").each((i, activity) => {
+    const activityDate = $(activity).attr("data-day-and-time");
+    if (activityDate === clickedDate && activity !== clickTarget){
+      $(activity).prop("disabled", disableBoolean);
     }
-    });
-  }
-    foundItems[0].prop("selected", true);
-});
-
-$ (".activities").append('<p class="total">Total: <span>$0</span></p>');
-
-let totalCost = 0;
+  });
+}
 
 $(".activities [type=checkbox]").change((e) => {
   const clickedCost = $(e.target).attr("data-cost");
   const clickedDate = $(e.target).attr("data-day-and-time");
   if ($(e.target).prop("checked")){
     totalCost += parseInt(clickedCost);
-    $(".activities [type=checkbox]").each((i, activity) => {
-      const activityDate = $(activity).attr("data-day-and-time");
-      if (activityDate === clickedDate && activity !== e.target){
-        $(activity).prop("disabled", true);
-      }
-    });
+    disableActivities (e.target, clickedDate, true);
   } else {
     totalCost -= parseInt(clickedCost);
-    $(".activities [type=checkbox]").each((i, activity) => {
-      const activityDate = $(activity).attr("data-day-and-time");
-      if (activityDate === clickedDate && activity !== e.target){
-        $(activity).prop("disabled", false);
-      }
-    });
+    disableActivities (e.target, clickedDate, false);
   }
   $(".total span").text(`$${totalCost}`);
+});
+
+// function hidePaymentOptions(){
+  $("#payment option").first().hide();
+  $("#payment option").each((i, option) => {
+    const paymentDiv = `#${option.value}`;
+    if (option.value === "credit card"){
+      $(option).prop("selected", true);
+    } else { $(paymentDiv).hide()
+    }
 });
