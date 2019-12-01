@@ -127,6 +127,19 @@ option {
 	font-family: 'roboto', sans-serif;
 }
 
+.disabled {
+	color: rgb(221, 224, 226);
+  text-decoration: line-through;
+}
+
+.error {
+  color: rgb(181, 34, 34);
+}
+
+.errorInput {
+  border-color: rgb(181, 34, 34);
+}
+
 /* =================================
   Page Styles
 ==================================== */
