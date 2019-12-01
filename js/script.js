@@ -55,7 +55,11 @@ $("#design").change((e) => {
   } else {
     showSelectedDesign(/(?:js shirt)/i);
     }
-  });
+  if ($("#design").hasClass("errorInput")){
+    $("#design").removeClass("errorInput");
+  }
+  toggleError(false, $("#designError"));
+});
 
 /********************************************
 Section Activities info
@@ -65,8 +69,12 @@ let totalCost = 0;
 function disableActivities (clickTarget, clickedDate, disableBoolean){
   $(".activities [type=checkbox]").each((i, activity) => {
     const activityDate = $(activity).attr("data-day-and-time");
-    if (activityDate === clickedDate && activity !== clickTarget){
-      $(activity).prop("disabled", disableBoolean);
+    if (activityDate === clickedDate && activity !== clickTarget && disableBoolean){
+      $(activity).prop("disabled", true);
+      $(activity).parent().addClass("disabled");
+    } else {
+      $(activity).prop("disabled", false);
+      $(activity).parent().removeClass("disabled");
     }
   });
 }
@@ -77,9 +85,11 @@ $(".activities [type=checkbox]").change((e) => {
   if ($(e.target).prop("checked")){
     totalCost += parseInt(clickedCost);
     disableActivities (e.target, clickedDate, true);
+    toggleError(false, $("#activityError"));
   } else {
     totalCost -= parseInt(clickedCost);
     disableActivities (e.target, clickedDate, false);
+    toggleError(true, $("#activityError"), $(".activities label").first(), errorMessages.activities);
   }
   $(".total span").text(`$${totalCost}`);
 });
@@ -158,24 +168,30 @@ function ccErrorEvaluation (){
   const input = $("#cc-num").val();
     if (input === ""){
      toggleError(true, $("#ccNumberError"), $(".credit-card"), errorMessages.ccBlank);
+     $("#cc-num").addClass("errorInput");
     }
     else if (!cardRegex.test(input)) {
       toggleError(true, $("#ccNumberError"), $(".credit-card"), errorMessages.ccNoNumber);
+      $("#cc-num").addClass("errorInput");
     }
     else if (input.length <13 || input.length >16){
       toggleError(true, $("#ccNumberError"), $(".credit-card"), errorMessages.ccLength);
+      $("#cc-num").addClass("errorInput");
     }
     else {
-      toggleError(false, $("#ccNumberError"))
+      toggleError(false, $("#ccNumberError"));
+      $("#cc-num").removeClass("errorInput");
     }
 }
 
 // Dynamic input validation for the emailadress
 $("#mail").on("keyup", (e) =>{
     if (!emailRegex.test($("#mail").val())){
-      toggleError(true, $("#emailError"), $("label[for=mail]"), errorMessages.email)
+      toggleError(true, $("#emailError"), $("label[for=mail]"), errorMessages.email);
+      $("#mail").addClass("errorInput");
     } else {
-      toggleError(false, $("#emailError"))
+      toggleError(false, $("#emailError"));
+      $("#mail").removeClass("errorInput");
     }
   });
 
@@ -184,38 +200,46 @@ eventually spitting out ugly error messages or banishing them into oblivion.
 */
 function validateForm(){
   if (!nameRegex.test($("#name").val())){
-    toggleError(true, $("#nameError"), $("label[for=name]"), errorMessages.name)
+    toggleError(true, $("#nameError"), $("label[for=name]"), errorMessages.name);
+    $("#name").addClass("errorInput");
   } else {
-    toggleError(false, $("#nameError"))
+    toggleError(false, $("#nameError"));
+    $("#name").removeClass("errorInput");
   }
 // Trigger warning
   $("#mail").trigger("keyup");
 
   if ($("#design option").first().prop("selected")){
-    toggleError(true, $("#designError"), $(".shirt-box"), errorMessages.design)
+    toggleError(true, $("#designError"), $(".shirt-box"), errorMessages.design);
+    $("#design").addClass("errorInput");
   } else {
-    toggleError(false, $("#designError"))
+    toggleError(false, $("#designError"));
+    $("#design").removeClass("errorInput");
   }
 
   if ($(".activities input:checked").length == 0){
-    toggleError(true, $("#activityError"), $(".activities label").first(), errorMessages.activities)
+    toggleError(true, $("#activityError"), $(".activities label").first(), errorMessages.activities);
   } else {
-    toggleError(false, $("#activityError"))
+    toggleError(false, $("#activityError"));
   }
 
   if ($("option[value='credit card']").prop("selected")){
     ccErrorEvaluation ();
 
     if (!zipRegex.test($("#zip").val())){
-      toggleError(true, $("#zipCodeError"), $(".credit-card"), errorMessages.zipCode)
+      toggleError(true, $("#zipCodeError"), $(".credit-card"), errorMessages.zipCode);
+      $("#zip").addClass("errorInput");
     } else {
-      toggleError(false, $("#zipCodeError"))
+      toggleError(false, $("#zipCodeError"));
+      $("#zip").removeClass("errorInput");
     }
 
     if (!cvvRegex.test($("#cvv").val())){
-      toggleError(true, $("#cvvError"), $(".credit-card"), errorMessages.cvv)
+      toggleError(true, $("#cvvError"), $(".credit-card"), errorMessages.cvv);
+      $("#cvv").addClass("errorInput");
     } else {
-      toggleError(false, $("#cvvError"))
+      toggleError(false, $("#cvvError"));
+      $("#cvv").removeClass("errorInput");
     }
   }
 }
