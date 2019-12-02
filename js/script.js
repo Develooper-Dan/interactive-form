@@ -70,26 +70,30 @@ function disableActivities (clickTarget, clickedDate, disableBoolean){
   $(".activities [type=checkbox]").each((i, activity) => {
     const activityDate = $(activity).attr("data-day-and-time");
     if (activityDate === clickedDate && activity !== clickTarget && disableBoolean){
-      $(activity).prop("disabled", true);
+      $(activity).prop("disabled", disableBoolean);
       $(activity).parent().addClass("disabled");
-    } else {
-      $(activity).prop("disabled", false);
+    }
+    if (activityDate === clickedDate && activity !== clickTarget && !disableBoolean){
+      $(activity).prop("disabled", disableBoolean);
       $(activity).parent().removeClass("disabled");
     }
   });
 }
-// Fires disableActivities and adds the cost of the clicked activity to the total
+// Fires disableActivities and adds the cost of the clicked activity to the total. Throws an error if no boxes are checked.
 $(".activities [type=checkbox]").change((e) => {
   const clickedCost = $(e.target).attr("data-cost");
   const clickedDate = $(e.target).attr("data-day-and-time");
   if ($(e.target).prop("checked")){
     totalCost += parseInt(clickedCost);
     disableActivities (e.target, clickedDate, true);
-    toggleError(false, $("#activityError"));
   } else {
     totalCost -= parseInt(clickedCost);
     disableActivities (e.target, clickedDate, false);
+  }
+  if ($(".activities [type=checkbox]:checked").length == 0){
     toggleError(true, $("#activityError"), $(".activities label").first(), errorMessages.activities);
+  } else {
+    toggleError(false, $("#activityError"));
   }
   $(".total span").text(`$${totalCost}`);
 });
